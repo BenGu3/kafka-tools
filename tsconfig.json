@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "lib": ["dom", "scripthost", "es2021"],
+    "esModuleInterop": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noUnusedParameters": true,
+    "noUnusedLocals": true,
+    "resolveJsonModule": true,
+    "module": "commonjs",
+    "target": "es2021",
+    "sourceMap": true,
+    "inlineSources": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "baseUrl": "./",
+    "outDir": "./build/"
+  },
+  "include": [
+    "./src/**/*.ts",
+  ],
+  "exclude": [
+    "./src/**/*.test.ts",
+    "node_modules",
+    "ts-node"
+  ]
+}
