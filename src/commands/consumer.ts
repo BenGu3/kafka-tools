@@ -22,6 +22,7 @@ export const handler = async (): Promise<void> => {
   const { groups } = await kafkaAdmin.listGroups()
   const groupIds = groups.map(group => group.groupId)
 
+  // TODO add better initial "no results" message
   const { consumerGroup } = await inquirer.prompt({
     name: 'consumerGroup',
     message: 'Which consumer?',
@@ -29,6 +30,26 @@ export const handler = async (): Promise<void> => {
     source: ((_answersSoFar: any, input: string) => groupIds.filter(id => id.includes(input))) as any
   })
 
+  const offsetsByTopic = await kafkaAdmin.fetchOffsets({ groupId: consumerGroup })
+  const topics = offsetsByTopic.map(topicOffsets => topicOffsets.topic)
+
+  let topic = topics[0]
+  if (topics.length > 1) {
+    const { selectedTopic } = await inquirer.prompt({
+      name: 'selectedTopic',
+      message: 'Which topic?',
+      type: 'list',
+      choices: topics
+    })
+
+    topic = selectedTopic
+  }
+
+  console.log('topic:', topic)
+
   // process.exit() // TODO why isn't yargs exiting?
-  return consumerGroup
+
+  // TODO reset to earliest
+  // TODO reset to timestamp (https://github.com/haversnail/inquirer-date-prompt)
+  // TODO seek to offset for each partition (one prompt per partition?)
 }
