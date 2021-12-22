@@ -2,6 +2,8 @@
 
 ## TODO
 - config to set kafka hosts
+- conventional commits
+  - commitizen in git hooks   
 - gh action
   - semantic-release
   - brew
