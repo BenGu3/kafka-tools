@@ -1,8 +1,8 @@
 import type { CommandBuilder } from 'yargs'
 import inquirer from 'inquirer'
-import { Kafka } from 'kafkajs'
 
-import logger from '../logger'
+import getKafkaAdmin from '../get-kafka-admin'
+import { Action, ActionHandlers } from './consumer-actions'
 
 type Options = {
 }
@@ -13,15 +13,7 @@ export const builder: CommandBuilder<Options, Options> = yargs => yargs
 
 // TODO add better error handling for errors from `kafkajs`
 export const handler = async (): Promise<void> => {
-  const { kafkaHost } = await inquirer.prompt<{ kafkaHost: string }>({
-    name: 'kafkaHost',
-    message: 'What is your Kafka host?',
-    type: 'input'
-  })
-
-  const kafkaClient = new Kafka({ brokers: [kafkaHost] })
-  const kafkaAdmin = kafkaClient.admin()
-
+  const kafkaAdmin = await getKafkaAdmin()
   const { groups } = await kafkaAdmin.listGroups()
   const groupIds = groups.map(group => group.groupId)
 
@@ -48,9 +40,18 @@ export const handler = async (): Promise<void> => {
     selectedTopic = topic
   }
 
-  logger.info(`selectedTopic: ${selectedTopic}`)
-
   // TODO reset to earliest
   // TODO reset to timestamp (https://github.com/haversnail/inquirer-date-prompt)
   // TODO seek to offset for each partition (one prompt per partition?)
+  const { action } = await inquirer.prompt<{ action: Action }>({
+    name: 'action',
+    message: 'Which action?',
+    type: 'list',
+    choices: Object.values(Action)
+  })
+
+  await ActionHandlers[action]({ groupId, topic: selectedTopic })
+
+  // TODO How do we recursively call handler?
+  // process.exit() // TODO why isn't yargs exiting?
 }

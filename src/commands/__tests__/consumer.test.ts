@@ -1,14 +1,12 @@
 import inquirer from 'inquirer'
-import * as kafkajs from 'kafkajs'
 import { when } from 'jest-when'
 
 import { handler } from '../consumer'
 import sandbox from '../../../test/sandbox'
-
-jest.mock('kafkajs')
+import { Action, ActionHandlers } from '../consumer-actions'
+import * as getKafkaAdmin from '../../get-kafka-admin'
 
 describe('commands/consumer', () => {
-  const kafkaHost = 'kafka:9000'
   const groups = [{ groupId: 'group-one' }, { groupId: 'group-two' }]
   const groupId = 'consumer-group-one'
   const topic = 'org.team.v1.topic'
@@ -18,37 +16,20 @@ describe('commands/consumer', () => {
 
   let listGroupsStub: jest.Mock
   let fetchOffsetsStub: jest.Mock
-  let kafkaAdminStub: jest.Mock
 
   beforeEach(() => {
     when(sandbox.stub(inquirer, 'prompt'))
-      .calledWith(expect.objectContaining({ name: 'kafkaHost' })).mockResolvedValue({ kafkaHost })
       .calledWith(expect.objectContaining({ name: 'groupId' })).mockResolvedValue({ groupId })
       .calledWith(expect.objectContaining({ name: 'topic' })).mockResolvedValue({ topic })
+      .calledWith(expect.objectContaining({ name: 'action' })).mockResolvedValue({ action: Action.FetchOffsets })
 
     listGroupsStub = sandbox.stub().mockResolvedValue({ groups })
-    fetchOffsetsStub = sandbox.stub()
-    when(fetchOffsetsStub)
-      .calledWith({ groupId }).mockResolvedValue(offsetsByTopic)
-      .calledWith({ groupId, topics: [topic] }).mockResolvedValue(offsetsByTopic)
-    kafkaAdminStub = sandbox.stub().mockReturnValue({
+    fetchOffsetsStub = sandbox.stub().mockResolvedValue(offsetsByTopic)
+    sandbox.stub(getKafkaAdmin, 'default').mockResolvedValue({
       listGroups: listGroupsStub,
       fetchOffsets: fetchOffsetsStub
     })
-    sandbox.stub(kafkajs, 'Kafka').mockReturnValue({ admin: kafkaAdminStub })
-  })
-
-  it('prompts to input Kafka host', async () => {
-    await handler()
-
-    expect(inquirer.prompt).toHaveBeenCalledWith(expect.objectContaining({ name: 'kafkaHost' }))
-  })
-
-  it('creates Kafka client/admin with kafka host', async () => {
-    await handler()
-
-    expect(kafkajs.Kafka).toHaveBeenCalledWith({ brokers: [kafkaHost] })
-    expect(kafkaAdminStub).toHaveBeenCalled()
+    sandbox.stub(ActionHandlers, Action.FetchOffsets)
   })
 
   it('gets all Kafka consumer groups', async () => {
@@ -76,15 +57,27 @@ describe('commands/consumer', () => {
         { topic: topic, partitions: [{ partition: 0, offset: '0' }] }
       ]
       const fetchOffsetsStub = sandbox.stub().mockResolvedValue(offsetsByTopic)
-      const kafkaAdminStub = sandbox.stub().mockReturnValue({
+      sandbox.stub(getKafkaAdmin, 'default').mockResolvedValue({
         listGroups: listGroupsStub,
         fetchOffsets: fetchOffsetsStub
       })
-      sandbox.stub(kafkajs, 'Kafka').mockReturnValue({ admin: kafkaAdminStub })
-
       await handler()
 
       expect(inquirer.prompt).toHaveBeenCalledWith(expect.objectContaining({ name: 'topic' }))
+    })
+
+    it('prompts to choose consumer action', async () => {
+      await handler()
+
+      expect(inquirer.prompt).toHaveBeenCalledWith(expect.objectContaining({ name: 'action' }))
+    })
+
+    describe('when action is Action.FetchOffsets', () => {
+      it('fetches offsets for groupId and topic', async () => {
+        await handler()
+
+        expect(ActionHandlers[Action.FetchOffsets]).toHaveBeenCalledWith({ groupId, topic })
+      })
     })
   })
 })
