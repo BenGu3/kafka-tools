@@ -11,8 +11,9 @@ export const command: string = 'consumer'
 export const desc: string = 'Start consumer tools'
 export const builder: CommandBuilder<Options, Options> = yargs => yargs
 
+// TODO add better error handling for errors from `kafkajs`
 export const handler = async (): Promise<void> => {
-  const { kafkaHost } = await inquirer.prompt({
+  const { kafkaHost } = await inquirer.prompt<{ kafkaHost: string }>({
     name: 'kafkaHost',
     message: 'What is your Kafka host?',
     type: 'input'
@@ -25,31 +26,29 @@ export const handler = async (): Promise<void> => {
   const groupIds = groups.map(group => group.groupId)
 
   // TODO add better initial "no results" message
-  const { consumerGroup } = await inquirer.prompt({
-    name: 'consumerGroup',
+  const { groupId } = await inquirer.prompt<{ groupId: string }>({
+    name: 'groupId',
     message: 'Which consumer?',
     type: 'autocomplete' as any,
     source: ((_answersSoFar: any, input: string) => groupIds.filter(id => id.includes(input))) as any
   })
 
-  const offsetsByTopic = await kafkaAdmin.fetchOffsets({ groupId: consumerGroup })
+  const offsetsByTopic = await kafkaAdmin.fetchOffsets({ groupId })
   const topics = offsetsByTopic.map(topicOffsets => topicOffsets.topic)
 
-  let topic = topics[0]
+  let selectedTopic = topics[0]
   if (topics.length > 1) {
-    const { selectedTopic } = await inquirer.prompt({
-      name: 'selectedTopic',
+    const { topic } = await inquirer.prompt<{ topic: string }>({
+      name: 'topic',
       message: 'Which topic?',
       type: 'list',
       choices: topics
     })
 
-    topic = selectedTopic
+    selectedTopic = topic
   }
 
-  logger.info(`topic: ${topic}`)
-
-  // process.exit() // TODO why isn't yargs exiting?
+  logger.info(`selectedTopic: ${selectedTopic}`)
 
   // TODO reset to earliest
   // TODO reset to timestamp (https://github.com/haversnail/inquirer-date-prompt)

@@ -10,10 +10,10 @@ jest.mock('kafkajs')
 describe('commands/consumer', () => {
   const kafkaHost = 'kafka:9000'
   const groups = [{ groupId: 'group-one' }, { groupId: 'group-two' }]
-  const consumerGroup = 'consumer-group-one'
-  const selectedTopic = 'org.team.v1.topic'
+  const groupId = 'consumer-group-one'
+  const topic = 'org.team.v1.topic'
   const offsetsByTopic = [
-    { topic: selectedTopic, partitions: [{ partition: 0, offset: '0' }] }
+    { topic, partitions: [{ partition: 0, offset: '0' }] }
   ]
 
   let listGroupsStub: jest.Mock
@@ -23,11 +23,14 @@ describe('commands/consumer', () => {
   beforeEach(() => {
     when(sandbox.stub(inquirer, 'prompt'))
       .calledWith(expect.objectContaining({ name: 'kafkaHost' })).mockResolvedValue({ kafkaHost })
-      .calledWith(expect.objectContaining({ name: 'consumerGroup' })).mockResolvedValue({ consumerGroup })
-      .calledWith(expect.objectContaining({ name: 'selectedTopic' })).mockResolvedValue({ selectedTopic })
+      .calledWith(expect.objectContaining({ name: 'groupId' })).mockResolvedValue({ groupId })
+      .calledWith(expect.objectContaining({ name: 'topic' })).mockResolvedValue({ topic })
 
     listGroupsStub = sandbox.stub().mockResolvedValue({ groups })
-    fetchOffsetsStub = sandbox.stub().mockResolvedValue(offsetsByTopic)
+    fetchOffsetsStub = sandbox.stub()
+    when(fetchOffsetsStub)
+      .calledWith({ groupId }).mockResolvedValue(offsetsByTopic)
+      .calledWith({ groupId, topics: [topic] }).mockResolvedValue(offsetsByTopic)
     kafkaAdminStub = sandbox.stub().mockReturnValue({
       listGroups: listGroupsStub,
       fetchOffsets: fetchOffsetsStub
@@ -57,20 +60,20 @@ describe('commands/consumer', () => {
   it('prompts to choose which consumer group', async () => {
     await handler()
 
-    expect(inquirer.prompt).toHaveBeenCalledWith(expect.objectContaining({ name: 'consumerGroup' }))
+    expect(inquirer.prompt).toHaveBeenCalledWith(expect.objectContaining({ name: 'groupId' }))
   })
 
   it('gets topics for selected consumer group', async () => {
     await handler()
 
-    expect(fetchOffsetsStub).toHaveBeenCalledWith({ groupId: consumerGroup })
+    expect(fetchOffsetsStub).toHaveBeenCalledWith({ groupId })
   })
 
   describe('when consumer is consuming multiple topics', () => {
     it('prompts to choose topic', async () => {
       const offsetsByTopic = [
         { topic: 'another-topic', partitions: [{ partition: 0, offset: '0' }] },
-        { topic: selectedTopic, partitions: [{ partition: 0, offset: '0' }] }
+        { topic: topic, partitions: [{ partition: 0, offset: '0' }] }
       ]
       const fetchOffsetsStub = sandbox.stub().mockResolvedValue(offsetsByTopic)
       const kafkaAdminStub = sandbox.stub().mockReturnValue({
@@ -81,7 +84,7 @@ describe('commands/consumer', () => {
 
       await handler()
 
-      expect(inquirer.prompt).toHaveBeenCalledWith(expect.objectContaining({ name: 'selectedTopic' }))
+      expect(inquirer.prompt).toHaveBeenCalledWith(expect.objectContaining({ name: 'topic' }))
     })
   })
 })
