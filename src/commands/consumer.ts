@@ -22,6 +22,7 @@ export const handler = async (): Promise<void> => {
     name: 'groupId',
     message: 'Which consumer?',
     type: 'autocomplete' as any,
+    // TODO implement fuzzy search (https://github.com/mokkabonna/inquirer-autocomplete-prompt/blob/master/example.js)
     source: ((_answersSoFar: any, input: string) => groupIds.filter(id => id.includes(input))) as any
   })
 
