@@ -2,6 +2,8 @@ import type { CommandBuilder } from 'yargs'
 import inquirer from 'inquirer'
 import { Kafka } from 'kafkajs'
 
+import logger from '../logger'
+
 type Options = {
 }
 
@@ -45,7 +47,7 @@ export const handler = async (): Promise<void> => {
     topic = selectedTopic
   }
 
-  console.log('topic:', topic)
+  logger.info(`topic: ${topic}`)
 
   // process.exit() // TODO why isn't yargs exiting?
 

@@ -22,7 +22,8 @@
     "inquirer": "8.2.0",
     "inquirer-autocomplete-prompt": "1.4.0",
     "kafkajs": "1.16.0-beta.30",
-    "yargs": "17.3.0"
+    "yargs": "17.3.0",
+    "winston": "3.3.3"
   },
   "devDependencies": {
     "@types/inquirer": "8.1.3",
