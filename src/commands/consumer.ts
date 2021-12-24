@@ -12,13 +12,11 @@ export const command: string = 'consumer'
 export const desc: string = 'Start consumer tools'
 export const builder: CommandBuilder<Options, Options> = yargs => yargs
 
-// TODO add better error handling for errors from `kafkajs`
 export const handler = async (): Promise<void> => {
   const kafkaAdmin = await getKafkaAdmin()
   const { groups } = await kafkaAdmin.listGroups()
   const groupIds = groups.map(group => group.groupId)
 
-  // TODO add better initial "no results" message
   const { groupId } = await inquirer.prompt<{ groupId: string }>({
     name: 'groupId',
     message: 'Which consumer?',

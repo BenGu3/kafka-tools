@@ -31,7 +31,7 @@ describe('get-kafka-admin', () => {
   it('returns Kafka client/admin with kafka host', async () => {
     const actual = await subject()
 
-    expect(kafkajs.Kafka).toHaveBeenCalledWith({ brokers: [kafkaHost] })
+    expect(kafkajs.Kafka).toHaveBeenCalledWith(expect.objectContaining({ brokers: [kafkaHost] }))
     expect(kafkaAdminConstructorStub).toHaveBeenCalled()
     expect(actual).toEqual(kafkaAdminStub)
   })

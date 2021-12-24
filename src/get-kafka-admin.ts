@@ -1,5 +1,5 @@
 import inquirer from 'inquirer'
-import { Admin, Kafka } from 'kafkajs'
+import { Admin, Kafka, logLevel } from 'kafkajs'
 
 let kafkaAdmin: Admin | null = null
 
@@ -11,7 +11,7 @@ const getKafkaAdmin = async () => {
       type: 'input'
     })
 
-    const kafkaClient = new Kafka({ brokers: [kafkaHost] })
+    const kafkaClient = new Kafka({ brokers: [kafkaHost], logLevel: logLevel.NOTHING })
     kafkaAdmin = kafkaClient.admin()
   }
 
