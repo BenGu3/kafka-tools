@@ -30,6 +30,7 @@ describe('commands/consumer', () => {
       fetchOffsets: fetchOffsetsStub
     })
     sandbox.stub(ActionHandlers, Action.FetchOffsets)
+    sandbox.stub(ActionHandlers, Action.ResetOffsets)
   })
 
   it('gets all Kafka consumer groups', async () => {
@@ -72,12 +73,26 @@ describe('commands/consumer', () => {
       expect(inquirer.prompt).toHaveBeenCalledWith(expect.objectContaining({ name: 'action' }))
     })
 
-    describe('when action is Action.FetchOffsets', () => {
-      it('fetches offsets for groupId and topic', async () => {
-        await handler()
+    it('fetches offsets for groupId and topic when action is Action.FetchOffsets', async () => {
+      when(sandbox.stub(inquirer, 'prompt'))
+        .calledWith(expect.objectContaining({ name: 'groupId' })).mockResolvedValue({ groupId })
+        .calledWith(expect.objectContaining({ name: 'topic' })).mockResolvedValue({ topic })
+        .calledWith(expect.objectContaining({ name: 'action' })).mockResolvedValue({ action: Action.FetchOffsets })
 
-        expect(ActionHandlers[Action.FetchOffsets]).toHaveBeenCalledWith({ groupId, topic })
-      })
+      await handler()
+
+      expect(ActionHandlers[Action.FetchOffsets]).toHaveBeenCalledWith({ groupId, topic })
+    })
+
+    it('resets offsets for groupId and topic when action is Action.ResetOffsets', async () => {
+      when(sandbox.stub(inquirer, 'prompt'))
+        .calledWith(expect.objectContaining({ name: 'groupId' })).mockResolvedValue({ groupId })
+        .calledWith(expect.objectContaining({ name: 'topic' })).mockResolvedValue({ topic })
+        .calledWith(expect.objectContaining({ name: 'action' })).mockResolvedValue({ action: Action.ResetOffsets })
+
+      await handler()
+
+      expect(ActionHandlers[Action.ResetOffsets]).toHaveBeenCalledWith({ groupId, topic })
     })
   })
 })
