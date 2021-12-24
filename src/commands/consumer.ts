@@ -1,5 +1,6 @@
 import type { CommandBuilder } from 'yargs'
 import inquirer from 'inquirer'
+import fuzzy from 'fuzzy'
 
 import getKafkaAdmin from '../get-kafka-admin'
 import { Action, ActionHandlers } from './consumer-actions'
@@ -22,8 +23,7 @@ export const handler = async (): Promise<void> => {
     name: 'groupId',
     message: 'Which consumer?',
     type: 'autocomplete' as any,
-    // TODO implement fuzzy search (https://github.com/mokkabonna/inquirer-autocomplete-prompt/blob/master/example.js)
-    source: ((_answersSoFar: any, input: string) => groupIds.filter(id => id.includes(input))) as any
+    source: ((_answersSoFar: any, input: string) => fuzzy.filter(input ?? '', groupIds).map(result => result.original)) as any
   })
 
   const offsetsByTopic = await kafkaAdmin.fetchOffsets({ groupId })
