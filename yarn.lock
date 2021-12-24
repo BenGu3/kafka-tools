@@ -1524,6 +1524,11 @@ inquirer-autocomplete-prompt@1.4.0:
     run-async "^2.4.0"
     rxjs "^6.6.2"
 
+inquirer-date-prompt@2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/inquirer-date-prompt/-/inquirer-date-prompt-2.0.1.tgz#38dc7dbc19774513fd32a47fe8958ea5a9d67eb6"
+  integrity sha512-1Rp9h8FJnORK6J+76jBbN4cULueGrI3vzY1yvH8M2dJ6cYm2/6ZNkOB3O7uf4LeiZUEZK14UTORrwxNGb9y/CA==
+
 inquirer@8.2.0:
   version "8.2.0"
   resolved "https://registry.yarnpkg.com/inquirer/-/inquirer-8.2.0.tgz#f44f008dd344bbfc4b30031f45d984e034a3ac3a"

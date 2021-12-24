@@ -39,7 +39,6 @@ export const handler = async (): Promise<void> => {
     selectedTopic = topic
   }
 
-  // TODO reset to timestamp (https://github.com/haversnail/inquirer-date-prompt)
   // TODO seek to offset for each partition (one prompt per partition?)
   const { action } = await inquirer.prompt<{ action: Action }>({
     name: 'action',
