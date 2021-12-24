@@ -51,5 +51,5 @@ export const handler = async (): Promise<void> => {
   await ActionHandlers[action]({ groupId, topic: selectedTopic })
 
   // TODO How do we recursively call handler?
-  // process.exit() // TODO why isn't yargs exiting?
+  await kafkaAdmin.disconnect()
 }

@@ -16,6 +16,7 @@ describe('commands/consumer', () => {
 
   let listGroupsStub: jest.Mock
   let fetchOffsetsStub: jest.Mock
+  let disconnectStub: jest.Mock
 
   beforeEach(() => {
     when(sandbox.stub(inquirer, 'prompt'))
@@ -25,9 +26,11 @@ describe('commands/consumer', () => {
 
     listGroupsStub = sandbox.stub().mockResolvedValue({ groups })
     fetchOffsetsStub = sandbox.stub().mockResolvedValue(offsetsByTopic)
+    disconnectStub = sandbox.stub()
     sandbox.stub(getKafkaAdmin, 'default').mockResolvedValue({
       listGroups: listGroupsStub,
-      fetchOffsets: fetchOffsetsStub
+      fetchOffsets: fetchOffsetsStub,
+      disconnect: disconnectStub
     })
     sandbox.stub(ActionHandlers, Action.FetchOffsets)
     sandbox.stub(ActionHandlers, Action.ResetOffsets)
@@ -51,48 +54,53 @@ describe('commands/consumer', () => {
     expect(fetchOffsetsStub).toHaveBeenCalledWith({ groupId })
   })
 
-  describe('when consumer is consuming multiple topics', () => {
-    it('prompts to choose topic', async () => {
-      const offsetsByTopic = [
-        { topic: 'another-topic', partitions: [{ partition: 0, offset: '0' }] },
-        { topic: topic, partitions: [{ partition: 0, offset: '0' }] }
-      ]
-      const fetchOffsetsStub = sandbox.stub().mockResolvedValue(offsetsByTopic)
-      sandbox.stub(getKafkaAdmin, 'default').mockResolvedValue({
-        listGroups: listGroupsStub,
-        fetchOffsets: fetchOffsetsStub
-      })
-      await handler()
-
-      expect(inquirer.prompt).toHaveBeenCalledWith(expect.objectContaining({ name: 'topic' }))
+  it('prompts to choose topic when consumer is consuming multiple topics', async () => {
+    const offsetsByTopic = [
+      { topic: 'another-topic', partitions: [{ partition: 0, offset: '0' }] },
+      { topic: topic, partitions: [{ partition: 0, offset: '0' }] }
+    ]
+    const fetchOffsetsStub = sandbox.stub().mockResolvedValue(offsetsByTopic)
+    sandbox.stub(getKafkaAdmin, 'default').mockResolvedValue({
+      listGroups: listGroupsStub,
+      fetchOffsets: fetchOffsetsStub,
+      disconnect: disconnectStub
     })
+    await handler()
 
-    it('prompts to choose consumer action', async () => {
-      await handler()
+    expect(inquirer.prompt).toHaveBeenCalledWith(expect.objectContaining({ name: 'topic' }))
+  })
 
-      expect(inquirer.prompt).toHaveBeenCalledWith(expect.objectContaining({ name: 'action' }))
-    })
+  it('prompts to choose consumer action', async () => {
+    await handler()
 
-    it('fetches offsets for groupId and topic when action is Action.FetchOffsets', async () => {
-      when(sandbox.stub(inquirer, 'prompt'))
-        .calledWith(expect.objectContaining({ name: 'groupId' })).mockResolvedValue({ groupId })
-        .calledWith(expect.objectContaining({ name: 'topic' })).mockResolvedValue({ topic })
-        .calledWith(expect.objectContaining({ name: 'action' })).mockResolvedValue({ action: Action.FetchOffsets })
+    expect(inquirer.prompt).toHaveBeenCalledWith(expect.objectContaining({ name: 'action' }))
+  })
 
-      await handler()
+  it('fetches offsets for groupId and topic when action is Action.FetchOffsets', async () => {
+    when(sandbox.stub(inquirer, 'prompt'))
+      .calledWith(expect.objectContaining({ name: 'groupId' })).mockResolvedValue({ groupId })
+      .calledWith(expect.objectContaining({ name: 'topic' })).mockResolvedValue({ topic })
+      .calledWith(expect.objectContaining({ name: 'action' })).mockResolvedValue({ action: Action.FetchOffsets })
 
-      expect(ActionHandlers[Action.FetchOffsets]).toHaveBeenCalledWith({ groupId, topic })
-    })
+    await handler()
 
-    it('resets offsets for groupId and topic when action is Action.ResetOffsets', async () => {
-      when(sandbox.stub(inquirer, 'prompt'))
-        .calledWith(expect.objectContaining({ name: 'groupId' })).mockResolvedValue({ groupId })
-        .calledWith(expect.objectContaining({ name: 'topic' })).mockResolvedValue({ topic })
-        .calledWith(expect.objectContaining({ name: 'action' })).mockResolvedValue({ action: Action.ResetOffsets })
+    expect(ActionHandlers[Action.FetchOffsets]).toHaveBeenCalledWith({ groupId, topic })
+  })
 
-      await handler()
+  it('resets offsets for groupId and topic when action is Action.ResetOffsets', async () => {
+    when(sandbox.stub(inquirer, 'prompt'))
+      .calledWith(expect.objectContaining({ name: 'groupId' })).mockResolvedValue({ groupId })
+      .calledWith(expect.objectContaining({ name: 'topic' })).mockResolvedValue({ topic })
+      .calledWith(expect.objectContaining({ name: 'action' })).mockResolvedValue({ action: Action.ResetOffsets })
 
-      expect(ActionHandlers[Action.ResetOffsets]).toHaveBeenCalledWith({ groupId, topic })
-    })
+    await handler()
+
+    expect(ActionHandlers[Action.ResetOffsets]).toHaveBeenCalledWith({ groupId, topic })
+  })
+
+  it('disconnects from kafka', async () => {
+    await handler()
+
+    expect(disconnectStub).toHaveBeenCalled()
   })
 })
