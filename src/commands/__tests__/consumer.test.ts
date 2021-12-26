@@ -57,7 +57,7 @@ describe('commands/consumer', () => {
   it('prompts to choose topic when consumer is consuming multiple topics', async () => {
     const offsetsByTopic = [
       { topic: 'another-topic', partitions: [{ partition: 0, offset: '0' }] },
-      { topic: topic, partitions: [{ partition: 0, offset: '0' }] }
+      { topic, partitions: [{ partition: 0, offset: '0' }] }
     ]
     const fetchOffsetsStub = sandbox.stub().mockResolvedValue(offsetsByTopic)
     sandbox.stub(getKafkaAdmin, 'default').mockResolvedValue({

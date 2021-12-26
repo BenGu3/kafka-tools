@@ -14,7 +14,6 @@ describe('consumer-actions/reset-offsets', () => {
     { partition: 1, offset: '10' }
   ]
 
-
   let resetOffsetsStub: jest.Mock
   let fetchTopicOffsetsByTimestampStub: jest.Mock
   let setOffsetsStub: jest.Mock

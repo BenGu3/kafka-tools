@@ -1,0 +1,74 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "extends": ["standard"],
+  "parserOptions": {
+    "project": "./tsconfig.dev.json"
+  },
+  "plugins": ["@typescript-eslint"],
+  "rules": {
+    "array-bracket-spacing": ["error", "never"],
+    "arrow-parens": ["error", "as-needed"],
+    "brace-style": ["error", "1tbs", { "allowSingleLine":  true }],
+    "camelcase": "off",
+    "no-unused-expressions": "off",
+    "curly": "off",
+    "default-case": "error",
+    "generator-star-spacing": "off",
+    "import/no-duplicates": "error",
+    "import/order": "off",
+    "linebreak-style": ["error", "unix"],
+    "no-async-promise-executor": "off",
+    "no-console": "off",
+    "no-empty": "error",
+    "no-inner-declarations": ["error", "both"],
+    "no-irregular-whitespace": ["error", { "skipStrings": false }],
+    "no-new": "off",
+    "no-unused-vars": "off",
+    "no-use-before-define": "off",
+    "no-var": "error",
+    "object-curly-spacing": ["error", "always"],
+    "object-shorthand": "error",
+    "operator-linebreak": ["error", "before", { "overrides": { "=": "after" }}],
+    "prefer-const": ["error", { "destructuring": "all" }],
+    "prefer-object-spread": "error",
+    "quote-props": ["error", "as-needed"],
+    "space-before-function-paren": [
+      "error",
+      {
+        "anonymous": "never",
+        "asyncArrow": "always",
+        "named": "never"
+      }
+    ],
+    "no-dupe-class-members": "off",
+    "no-undef": "off",
+    "@typescript-eslint/ban-types": ["error", {
+      "types": {
+        "Boolean": "Use boolean instead",
+        "Object": "Use {} instead",
+        "String": "Use string instead",
+        "Number": "Use number instead",
+        "Function": "Use lambda instead"
+      }
+    }],
+    "@typescript-eslint/indent": ["error", 2],
+    "@typescript-eslint/no-empty-interface": "error",
+    "@typescript-eslint/no-floating-promises": ["error", {
+      "ignoreVoid": true
+    }],
+    "@typescript-eslint/no-throw-literal": "error",
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "vars": "all",
+        "args": "none",
+        "argsIgnorePattern": "^_",
+        "ignoreRestSiblings": true
+      }
+    ],
+    "@typescript-eslint/no-use-before-define": "off",
+    "@typescript-eslint/prefer-namespace-keyword": "error",
+    "@typescript-eslint/prefer-for-of": "error",
+    "@typescript-eslint/type-annotation-spacing": "error"
+  }
+}

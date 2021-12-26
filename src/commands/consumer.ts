@@ -5,12 +5,9 @@ import fuzzy from 'fuzzy'
 import getKafkaAdmin from '../get-kafka-admin'
 import { Action, ActionHandlers } from './consumer-actions'
 
-type Options = {
-}
-
 export const command: string = 'consumer'
 export const desc: string = 'Start consumer tools'
-export const builder: CommandBuilder<Options, Options> = yargs => yargs
+export const builder: CommandBuilder = yargs => yargs
 
 export const handler = async (): Promise<void> => {
   const kafkaAdmin = await getKafkaAdmin()

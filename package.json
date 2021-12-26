@@ -13,7 +13,9 @@
     "build:clean": "rm -rf ./build",
     "build:compile": "tsc -sourcemap --pretty -p tsconfig.json",
     "build:dev": "yarn build && npm unlink -g kafka-tools && npm link",
-    "precommit": "yarn build && yarn test",
+    "lint:modified": "lint-staged",
+    "lint:all": "eslint ./src/** --ext .ts",
+    "precommit": "yarn build && yarn lint:modified && yarn test",
     "prepare": "husky install",
     "test": "jest",
     "test:watch": "jest --watch"
@@ -37,11 +39,25 @@
     "@types/node": "17.0.1",
     "@types/table": "6.3.2",
     "@types/yargs": "17.0.7",
+    "@typescript-eslint/eslint-plugin": "5.8.0",
+    "@typescript-eslint/parser": "5.8.0",
+    "eslint": "8.5.0",
+    "eslint-config-standard": "16.0.3",
+    "eslint-plugin-import": "2.25.3",
+    "eslint-plugin-node": "11.1.0",
+    "eslint-plugin-promise": "6.0.0",
+    "eslint-plugin-standard": "5.0.0",
     "husky": "7.0.4",
     "jest": "27.4.5",
     "jest-when": "3.5.0",
+    "lint-staged": "12.1.4",
     "ts-jest": "27.1.2",
     "ts-node": "10.4.0",
     "typescript": "4.5.4"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint"
+    ]
   }
 }

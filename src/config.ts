@@ -28,7 +28,7 @@ export const set = (params: { key: ConfigKey, value: string }) => {
   initConfig()
 
   const { key, value } = params
-  config = { ...config, [key]: value}
+  config = { ...config, [key]: value }
 
   fs.writeFileSync(configFilePath, JSON.stringify(config, null, 2))
 }

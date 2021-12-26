@@ -4,4 +4,3 @@ export type ActionHandlerParams = {
   groupId: string
   topic: string
 }
-

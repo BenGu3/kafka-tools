@@ -32,7 +32,6 @@ export const builder: CommandBuilder = yargs =>
       handler: unsetHandler
     })
 
-
 export const setHandler = (params: Arguments<SetPositionals>) => {
   const { key, value } = params
   config.set({ key: key as ConfigKey, value })
