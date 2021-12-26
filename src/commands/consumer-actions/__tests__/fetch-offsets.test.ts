@@ -1,3 +1,5 @@
+import * as table from 'table'
+
 import subject from '../fetch-offsets'
 import sandbox from '../../../../test/sandbox'
 import * as getKafkaAdmin from '../../../get-kafka-admin'
@@ -29,6 +31,8 @@ describe('consumer-actions/fetch-offsets', () => {
       fetchOffsets: fetchOffsetsStub,
       fetchTopicOffsets: fetchTopicOffsetsStub
     })
+    sandbox.stub(table, 'table')
+    sandbox.stub(console, 'log')
   })
 
   it('fetches consumer offsets', async () => {
@@ -41,5 +45,18 @@ describe('consumer-actions/fetch-offsets', () => {
     await subject({ groupId, topic })
 
     expect(fetchTopicOffsetsStub).toHaveBeenCalledWith(topic)
+  })
+
+  it('logs out offsets', async () => {
+    const tableData = [
+      ['Partition', 'Current offset', 'Max offset', 'Lag', 'Progress'],
+      [0, 12, 120, 108, 10],
+      [1, 15, 150, 135, 10],
+      [2, 10, 100, 90, 10]
+    ]
+    await subject({ groupId, topic })
+
+    expect(table.table).toHaveBeenCalledWith(tableData)
+    expect(console.log).toHaveBeenCalled()
   })
 })
