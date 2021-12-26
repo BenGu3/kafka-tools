@@ -4,6 +4,7 @@ import { when } from 'jest-when'
 
 import subject, { resetKafkaAdmin } from '../get-kafka-admin'
 import sandbox from '../../test/sandbox'
+import * as config from '../config'
 
 jest.mock('kafkajs')
 
@@ -15,16 +16,27 @@ describe('get-kafka-admin', () => {
 
   beforeEach(() => {
     resetKafkaAdmin()
-    when(sandbox.stub(inquirer, 'prompt'))
-      .calledWith(expect.objectContaining({ name: 'kafkaHost' })).mockResolvedValue({ kafkaHost })
+    sandbox.stub(config, 'getConfig').mockReturnValue({ kafkaHost })
     kafkaAdminStub = { fetchOffsets: sandbox.stub() }
     kafkaAdminConstructorStub = sandbox.stub().mockReturnValue(kafkaAdminStub)
     sandbox.stub(kafkajs, 'Kafka').mockReturnValue({ admin: kafkaAdminConstructorStub })
   })
 
-  it('prompts to input Kafka host', async () => {
+  it('uses config.kafkaHost when exists', async () => {
     await subject()
 
+    expect(config.getConfig).toHaveBeenCalled()
+    expect(kafkajs.Kafka).toHaveBeenCalledWith(expect.objectContaining({ brokers: [kafkaHost] }))
+  })
+
+  it('prompts to input Kafka host when config.kafkaHost is null', async () => {
+    sandbox.stub(config, 'getConfig').mockReturnValue({})
+    when(sandbox.stub(inquirer, 'prompt'))
+      .calledWith(expect.objectContaining({ name: 'kafkaHost' })).mockResolvedValue({ kafkaHost })
+
+    await subject()
+
+    expect(config.getConfig).toHaveBeenCalled()
     expect(inquirer.prompt).toHaveBeenCalledWith(expect.objectContaining({ name: 'kafkaHost' }))
   })
 

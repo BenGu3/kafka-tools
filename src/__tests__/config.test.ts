@@ -38,7 +38,7 @@ describe('config', () => {
 
   describe('#set', () => {
     it('sets a new key/value on local config and writes to config file', async () => {
-      const key = 'newKey'
+      const key = subject.ConfigKey.KafkaHost
       const value = 'newValue'
       const expected = { ...testConfig, [key]: value }
 
@@ -55,7 +55,7 @@ describe('config', () => {
       const key = 'firstConfig'
       const expected = { secondConfig: '2' }
 
-      subject.unset(key)
+      subject.unset(key as subject.ConfigKey)
       const actual = await subject.getConfig()
 
       expect(actual).toEqual(expected)

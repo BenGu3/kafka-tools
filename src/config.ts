@@ -3,11 +3,11 @@ import os from 'os'
 import fs from 'fs'
 
 export const configFilePath = path.join(os.homedir(), '.kafka-tools')
-export enum ConfigKeys {
+export enum ConfigKey {
   KafkaHost = 'kafkaHost'
 }
 
-let config: Record<string, string> | null = null
+let config: Partial<Record<ConfigKey, string>> | null = null
 
 const initConfig = () => {
   if (config) return
@@ -24,7 +24,7 @@ export const getConfig = () => {
   return config
 }
 
-export const set = (params: { key: string, value: string }) => {
+export const set = (params: { key: ConfigKey, value: string }) => {
   initConfig()
 
   const { key, value } = params
@@ -33,7 +33,7 @@ export const set = (params: { key: string, value: string }) => {
   fs.writeFileSync(configFilePath, JSON.stringify(config, null, 2))
 }
 
-export const unset = (key: string) => {
+export const unset = (key: ConfigKey) => {
   initConfig()
 
   if (!config || !(key in config)) return
