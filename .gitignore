@@ -2,6 +2,7 @@ build
 release
 .DS_Store
 node_modules
+.release-version
 
 .idea/*
 !.idea/runConfigurations

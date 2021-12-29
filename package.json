@@ -1,5 +1,5 @@
 {
-  "name": "kafka-tools",
+  "name": "@bengu3/kafka-tools",
   "version": "1.0.0",
   "main": "./build/cli.js",
   "bin": {
