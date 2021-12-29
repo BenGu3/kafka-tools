@@ -45,7 +45,7 @@ jobs:
       - name: Create release files
         run: yarn run release
       - name: Publish to npm
-        run: yarn run publish:npm
+        run: HUSKY=0 yarn run publish:npm
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
