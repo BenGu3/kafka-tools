@@ -2,8 +2,66 @@ name: Publish
 on: workflow_dispatch
 
 jobs:
+  verify-publish:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.13.1'
+          cache: 'yarn'
+      - name: Install dependencies
+        run: yarn --frozen-lockfile
+      - name: Write release version
+        run: yarn run publish:npm --dry-run
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Export release version
+        id: get-version
+        run: echo "::set-output name=version::$(cat .release-version)"
+      - name: Not publishing
+        if: ${{ !steps.get-version.outputs.version }}
+        run: echo "Not publishing because no relevant changes."
+
   publish:
+    needs: verify-publish
+    if: needs.verify-publish.outputs.version
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          echo "Publishing...."
+      - uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.13.1'
+          cache: 'yarn'
+      - name: Install dependencies
+        run: yarn --frozen-lockfile
+      - name: Build
+        run: yarn run build
+      - name: Create release files
+        run: yarn run release
+      - name: Publish to npm
+        run: yarn run publish:npm
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Add release tar to GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: v${{ needs.verify-publish.outputs.version }}
+          tag_name: v${{ needs.verify-publish.outputs.version }}
+          files: ./release/kafka-tools.tar.gz
+      - name: Bump tap formula
+        uses: mislav/bump-homebrew-formula-action@v1
+        if: "!contains(github.ref, '-')"
+        env:
+          COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
+        with:
+          formula-name: kafka-tools
+          tag-name: v${{ needs.verify-publish.outputs.version }}
+          homebrew-tap: bengu3/homebrew-tap
+          download-url: https://github.com/bengu3/kafka-tools/releases/download/v${{ needs.verify-publish.outputs.version }}/kafka-tools.tar.gz
