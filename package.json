@@ -12,7 +12,6 @@
     "build": "yarn build:clean && yarn build:compile",
     "build:clean": "rm -rf ./build",
     "build:compile": "tsc -sourcemap --pretty -p tsconfig.json",
-    "build:dev": "yarn build && npm unlink -g kafka-tools && npm link",
     "lint:modified": "lint-staged",
     "lint:all": "eslint ./src/** --ext .ts",
     "precommit": "yarn build && yarn lint:modified && yarn test",
@@ -22,6 +21,7 @@
     "release:clean": "rm -rf ./release",
     "release:create": "pkg package.json",
     "release:bundle": "cd release && tar -czf kafka-tools.tar.gz kafka-tools",
+    "start": "ts-node ./src/cli.ts",
     "test": "jest",
     "test:watch": "jest --watch"
   },

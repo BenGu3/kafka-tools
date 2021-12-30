@@ -9,7 +9,7 @@ inquirer.registerPrompt('date', require('inquirer-date-prompt'))
 
 // eslint-disable-next-line no-void
 void yargs(hideBin(process.argv))
-  .commandDir('commands')
+  .commandDir('commands', { extensions: ['js', 'ts'] })
   .demandCommand()
   .strict()
   .alias({ h: 'help', v: 'version' })
