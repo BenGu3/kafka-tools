@@ -16,12 +16,6 @@
     "baseUrl": "./",
     "outDir": "./build/"
   },
-  "include": [
-    "./src/**/*.ts",
-  ],
-  "exclude": [
-    "./src/**/*.test.ts",
-    "node_modules",
-    "ts-node"
-  ]
+  "include": ["./**/*.ts"],
+  "exclude": ["node_modules"]
 }

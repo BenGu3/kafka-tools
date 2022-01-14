@@ -11,7 +11,7 @@
   "scripts": {
     "build": "yarn build:clean && yarn build:compile",
     "build:clean": "rm -rf ./build",
-    "build:compile": "tsc -sourcemap --pretty -p tsconfig.json",
+    "build:compile": "tsc -sourcemap --pretty -p tsconfig.build.json",
     "lint:modified": "lint-staged",
     "lint:all": "eslint ./src/** --ext .ts",
     "precommit": "yarn build && yarn lint:modified && yarn test",

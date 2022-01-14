@@ -2,7 +2,7 @@
   "parser": "@typescript-eslint/parser",
   "extends": ["standard"],
   "parserOptions": {
-    "project": "./tsconfig.dev.json"
+    "project": "./tsconfig.json"
   },
   "plugins": ["@typescript-eslint"],
   "rules": {
