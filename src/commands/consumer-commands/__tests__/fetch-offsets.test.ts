@@ -1,10 +1,11 @@
 import * as table from 'table'
 
-import subject from '../fetch-offsets'
+import { handler } from '../fetch-offsets'
 import sandbox from '../../../../test/sandbox'
 import * as getKafkaAdmin from '../../../get-kafka-admin'
+import * as consumerCommand from '../../consumer'
 
-describe('consumer-actions/fetch-offsets', () => {
+describe('consumer-commands/fetch-offsets', () => {
   const groupId = 'consumer-group-one'
   const topic = 'org.team.v1.topic'
   const consumerOffsets = [{
@@ -25,6 +26,7 @@ describe('consumer-actions/fetch-offsets', () => {
   let fetchTopicOffsetsStub: jest.Mock
 
   beforeEach(() => {
+    sandbox.stub(consumerCommand, 'getConsumerOptions').mockResolvedValue({ groupId, topic })
     fetchOffsetsStub = sandbox.stub().mockResolvedValue(consumerOffsets)
     fetchTopicOffsetsStub = sandbox.stub().mockResolvedValue(topicOffsets)
     sandbox.stub(getKafkaAdmin, 'default').mockResolvedValue({
@@ -36,13 +38,13 @@ describe('consumer-actions/fetch-offsets', () => {
   })
 
   it('fetches consumer offsets', async () => {
-    await subject({ groupId, topic })
+    await handler()
 
     expect(fetchOffsetsStub).toHaveBeenCalledWith({ groupId, topics: [topic] })
   })
 
   it('fetches topic offsets', async () => {
-    await subject({ groupId, topic })
+    await handler()
 
     expect(fetchTopicOffsetsStub).toHaveBeenCalledWith(topic)
   })
@@ -54,7 +56,7 @@ describe('consumer-actions/fetch-offsets', () => {
       [1, 15, 150, 135, 10],
       [2, 10, 100, 90, 10]
     ]
-    await subject({ groupId, topic })
+    await handler()
 
     expect(table.table).toHaveBeenCalledWith(tableData)
     expect(console.log).toHaveBeenCalled()

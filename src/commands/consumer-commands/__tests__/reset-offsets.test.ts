@@ -1,11 +1,12 @@
 import inquirer from 'inquirer'
 import { when } from 'jest-when'
 
-import subject, { ResetOffsetOption } from '../reset-offsets'
+import { handler, ResetOffsetOption } from '../reset-offsets'
+import * as consumerCommand from '../../consumer'
 import sandbox from '../../../../test/sandbox'
 import * as getKafkaAdmin from '../../../get-kafka-admin'
 
-describe('consumer-actions/reset-offsets', () => {
+describe('consumer-commands/reset-offsets', () => {
   const groupId = 'consumer-group-one'
   const topic = 'org.team.v1.topic'
   const resetOffsetOption = true
@@ -19,6 +20,7 @@ describe('consumer-actions/reset-offsets', () => {
   let setOffsetsStub: jest.Mock
 
   beforeEach(() => {
+    sandbox.stub(consumerCommand, 'getConsumerOptions').mockResolvedValue({ groupId, topic })
     sandbox.stub(inquirer, 'prompt').mockResolvedValue({ resetOffsetOption })
     resetOffsetsStub = sandbox.stub()
     fetchTopicOffsetsByTimestampStub = sandbox.stub().mockResolvedValue(partitionsAtTimestamp)
@@ -31,7 +33,7 @@ describe('consumer-actions/reset-offsets', () => {
   })
 
   it('prompts for earliest or latest offset', async () => {
-    await subject({ groupId, topic })
+    await handler()
 
     expect(inquirer.prompt).toHaveBeenCalledWith(expect.objectContaining({ name: 'resetOffsetOption' }))
   })
@@ -39,7 +41,7 @@ describe('consumer-actions/reset-offsets', () => {
   it('resets consumer offsets to latest when latest is selected', async () => {
     sandbox.stub(inquirer, 'prompt').mockResolvedValue({ resetOffsetOption: ResetOffsetOption.Latest })
 
-    await subject({ groupId, topic })
+    await handler()
 
     expect(resetOffsetsStub).toHaveBeenCalledWith({ groupId, topic, earliest: false })
   })
@@ -47,7 +49,7 @@ describe('consumer-actions/reset-offsets', () => {
   it('resets consumer offsets to earliest when earliest is selected', async () => {
     sandbox.stub(inquirer, 'prompt').mockResolvedValue({ resetOffsetOption: ResetOffsetOption.Earliest })
 
-    await subject({ groupId, topic })
+    await handler()
 
     expect(resetOffsetsStub).toHaveBeenCalledWith({ groupId, topic, earliest: true })
   })
@@ -58,7 +60,7 @@ describe('consumer-actions/reset-offsets', () => {
       .calledWith(expect.objectContaining({ name: 'resetOffsetOption' })).mockResolvedValue({ resetOffsetOption: ResetOffsetOption.Timestamp })
       .calledWith(expect.objectContaining({ name: 'resetTimestamp' })).mockResolvedValue({ resetTimestamp: new Date(resetTimestamp) })
 
-    await subject({ groupId, topic })
+    await handler()
 
     expect(inquirer.prompt).toHaveBeenCalledWith(expect.objectContaining({ name: 'resetTimestamp' }))
     expect(fetchTopicOffsetsByTimestampStub).toHaveBeenCalledWith(topic, resetTimestamp)

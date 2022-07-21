@@ -32,9 +32,14 @@ kafka-tools config set kafkaHost [kafkaHost]
 ```
 
 ### `consumer`
-Start interactive consumer tools
+Fetch consumer offsets
 ```bash
-kafka-tools consumer
+kafka-tools consumer fetch-offsets
+```
+
+Reset consumer offsets
+```bash
+kafka-tools consumer reset-offsets
 ```
 
 ## 🛠 Development 🛠

@@ -1,9 +1,15 @@
-import { ActionHandler } from './types'
-import getKafkaAdmin from '../../get-kafka-admin'
 import inquirer from 'inquirer'
+import { CommandBuilder } from 'yargs'
 
-const resetOffsets: ActionHandler = async params => {
-  const { groupId, topic } = params
+import getKafkaAdmin from '../../get-kafka-admin'
+import { getConsumerOptions } from '../consumer'
+
+export const command: string = 'reset-offsets'
+export const desc: string = 'Reset offsets'
+export const builder: CommandBuilder = yargs => yargs
+
+export const handler = async (): Promise<void> => {
+  const { groupId, topic } = await getConsumerOptions()
   const kafkaAdmin = await getKafkaAdmin()
 
   const { resetOffsetOption } = await inquirer.prompt<{ resetOffsetOption: ResetOffsetOption }>({
@@ -27,8 +33,6 @@ const resetOffsets: ActionHandler = async params => {
     await kafkaAdmin.resetOffsets({ groupId, topic, earliest })
   }
 }
-
-export default resetOffsets
 
 export enum ResetOffsetOption {
   Earliest = 'earliest',

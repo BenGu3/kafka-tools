@@ -1,11 +1,16 @@
+import { CommandBuilder } from 'yargs'
 import keyBy from 'lodash/keyBy'
 import { table } from 'table'
 
-import { ActionHandler } from './types'
 import getKafkaAdmin from '../../get-kafka-admin'
+import { getConsumerOptions } from '../consumer'
 
-const fetchOffsets: ActionHandler = async params => {
-  const { groupId, topic } = params
+export const command: string = 'fetch-offsets'
+export const desc: string = 'Fetch offsets'
+export const builder: CommandBuilder = yargs => yargs
+
+export const handler = async (): Promise<void> => {
+  const { groupId, topic } = await getConsumerOptions()
   const kafkaAdmin = await getKafkaAdmin()
 
   const consumerOffsets = await kafkaAdmin.fetchOffsets({ groupId, topics: [topic] })
@@ -31,5 +36,3 @@ const fetchOffsets: ActionHandler = async params => {
   const tableHeader = ['Partition', 'Current offset', 'Max offset', 'Lag', 'Progress']
   console.log(table([tableHeader, ...tableData]))
 }
-
-export default fetchOffsets
