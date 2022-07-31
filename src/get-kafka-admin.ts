@@ -1,7 +1,7 @@
 import inquirer from 'inquirer'
 import { Admin, Kafka, logLevel } from 'kafkajs'
 
-import { getConfig } from './config'
+import config from './config'
 
 let kafkaAdmin: Admin | null = null
 
@@ -16,9 +16,9 @@ const getKafkaAdmin = async () => {
 }
 
 const getKafkaHost = async (): Promise<string> => {
-  const config = getConfig()
-  if (config?.kafkaHost) {
-    return config.kafkaHost
+  const dotfileConfig = config.dotfile.getConfig()
+  if (dotfileConfig?.kafkaHost) {
+    return dotfileConfig.kafkaHost
   }
 
   const { kafkaHost } = await inquirer.prompt<{ kafkaHost: string }>({
