@@ -1,7 +1,7 @@
 import inquirer from 'inquirer'
 import { CommandBuilder } from 'yargs'
 
-import getKafkaAdmin from '../../get-kafka-admin'
+import kafka from '../../kafka'
 import { getConsumerOptions } from '../consumer'
 
 export const command: string = 'reset-offsets'
@@ -10,7 +10,7 @@ export const builder: CommandBuilder = yargs => yargs
 
 export const handler = async (): Promise<void> => {
   const { groupId, topic } = await getConsumerOptions()
-  const kafkaAdmin = await getKafkaAdmin()
+  const kafkaAdmin = await kafka.connect()
 
   const { resetOffsetOption } = await inquirer.prompt<{ resetOffsetOption: ResetOffsetOption }>({
     name: 'resetOffsetOption',

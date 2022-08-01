@@ -2,7 +2,7 @@ import * as table from 'table'
 
 import { handler } from '../fetch-offsets'
 import sandbox from '../../../../test/sandbox'
-import * as getKafkaAdmin from '../../../get-kafka-admin'
+import * as kafka from '../../../kafka'
 import * as consumerCommand from '../../consumer'
 
 describe('consumer-commands/fetch-offsets', () => {
@@ -29,7 +29,7 @@ describe('consumer-commands/fetch-offsets', () => {
     sandbox.stub(consumerCommand, 'getConsumerOptions').mockResolvedValue({ groupId, topic })
     fetchOffsetsStub = sandbox.stub().mockResolvedValue(consumerOffsets)
     fetchTopicOffsetsStub = sandbox.stub().mockResolvedValue(topicOffsets)
-    sandbox.stub(getKafkaAdmin, 'default').mockResolvedValue({
+    sandbox.stub(kafka.default, 'connect').mockResolvedValue({
       fetchOffsets: fetchOffsetsStub,
       fetchTopicOffsets: fetchTopicOffsetsStub
     })

@@ -3,7 +3,7 @@ import { when } from 'jest-when'
 
 import { getConsumerOptions } from '../consumer'
 import sandbox from '../../../test/sandbox'
-import * as getKafkaAdmin from '../../get-kafka-admin'
+import * as kafka from '../../kafka'
 
 describe('commands/consumer', () => {
   describe('#getConsumerOptions', () => {
@@ -24,7 +24,7 @@ describe('commands/consumer', () => {
 
       listGroupsStub = sandbox.stub().mockResolvedValue({ groups })
       fetchOffsetsStub = sandbox.stub().mockResolvedValue(offsetsByTopic)
-      sandbox.stub(getKafkaAdmin, 'default').mockResolvedValue({
+      sandbox.stub(kafka.default, 'connect').mockResolvedValue({
         listGroups: listGroupsStub,
         fetchOffsets: fetchOffsetsStub
       })
@@ -54,7 +54,7 @@ describe('commands/consumer', () => {
         { topic, partitions: [{ partition: 0, offset: '0' }] }
       ]
       const fetchOffsetsStub = sandbox.stub().mockResolvedValue(offsetsByTopic)
-      sandbox.stub(getKafkaAdmin, 'default').mockResolvedValue({
+      sandbox.stub(kafka.default, 'connect').mockResolvedValue({
         listGroups: listGroupsStub,
         fetchOffsets: fetchOffsetsStub
       })

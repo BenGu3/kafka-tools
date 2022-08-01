@@ -2,7 +2,7 @@ import type { CommandBuilder } from 'yargs'
 import inquirer from 'inquirer'
 import fuzzy from 'fuzzy'
 
-import getKafkaAdmin from '../get-kafka-admin'
+import kafka from '../kafka'
 
 export const command: string = 'consumer'
 export const desc: string = 'Start consumer tools'
@@ -10,7 +10,7 @@ export const builder: CommandBuilder = yargs => yargs.commandDir('consumer-comma
 export const handler = async (): Promise<void> => {}
 
 export const getConsumerOptions = async (): Promise<Record<string, string>> => {
-  const kafkaAdmin = await getKafkaAdmin()
+  const kafkaAdmin = await kafka.connect()
   const { groups } = await kafkaAdmin.listGroups()
   const groupIds = groups.map(group => group.groupId)
 

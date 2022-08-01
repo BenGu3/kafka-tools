@@ -4,7 +4,7 @@ import { when } from 'jest-when'
 import { handler, ResetOffsetOption } from '../reset-offsets'
 import * as consumerCommand from '../../consumer'
 import sandbox from '../../../../test/sandbox'
-import * as getKafkaAdmin from '../../../get-kafka-admin'
+import * as kafka from '../../../kafka'
 
 describe('consumer-commands/reset-offsets', () => {
   const groupId = 'consumer-group-one'
@@ -25,7 +25,7 @@ describe('consumer-commands/reset-offsets', () => {
     resetOffsetsStub = sandbox.stub()
     fetchTopicOffsetsByTimestampStub = sandbox.stub().mockResolvedValue(partitionsAtTimestamp)
     setOffsetsStub = sandbox.stub()
-    sandbox.stub(getKafkaAdmin, 'default').mockResolvedValue({
+    sandbox.stub(kafka.default, 'connect').mockResolvedValue({
       resetOffsets: resetOffsetsStub,
       fetchTopicOffsetsByTimestamp: fetchTopicOffsetsByTimestampStub,
       setOffsets: setOffsetsStub

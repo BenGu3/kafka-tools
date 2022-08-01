@@ -5,7 +5,7 @@ import config from './config'
 
 let kafkaAdmin: Admin | null = null
 
-const getKafkaAdmin = async () => {
+const connect = async () => {
   if (!kafkaAdmin) {
     const kafkaHost = await getKafkaHost()
     const kafkaClient = new Kafka({ brokers: [kafkaHost], logLevel: logLevel.NOTHING })
@@ -30,6 +30,11 @@ const getKafkaHost = async (): Promise<string> => {
   return kafkaHost
 }
 
+const disconnect = async () => kafkaAdmin && await kafkaAdmin.disconnect()
+
 export const resetKafkaAdmin = () => { kafkaAdmin = null }
 
-export default getKafkaAdmin
+export default {
+  connect,
+  disconnect
+}
