@@ -21,14 +21,14 @@ export const builder: CommandBuilder = yargs =>
       describe: 'key and value to set in config',
       builder: yargs =>
         yargs
-          .positional('key', { type: 'string', choices: Object.values(ConfigKey), demandOption: true })
+          .positional('key', { type: 'string', choices: config.DotfileConfigurableKeys, demandOption: true })
           .positional('value', { type: 'string', demandOption: true }),
       handler: setHandler
     })
     .command({
       command: 'unset <key>',
       describe: 'key to unset in config',
-      builder: yargs => yargs.positional('key', { type: 'string', choices: Object.values(ConfigKey), demandOption: true }),
+      builder: yargs => yargs.positional('key', { type: 'string', choices: config.DotfileConfigurableKeys, demandOption: true }),
       handler: unsetHandler
     })
 

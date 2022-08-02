@@ -1,12 +1,13 @@
 import inquirer from 'inquirer'
 import fuzzy from 'fuzzy'
-import { mapValues } from 'lodash'
+import { mapValues, pickBy } from 'lodash'
 
 import { ConfigKey } from './config-key'
 import { Config } from './index'
 
 const DefaultConfigHelpers: ConfigHelpers = {
   getFromArgv: ({ argv, configKey }) => argv[configKey],
+  isDotfileConfigurable: true,
   getFromDotfile: ({ configKey }, dotfile) => dotfile && dotfile[configKey],
   prompt: async () => { throw new Error('no prompt :(') }
 }
@@ -50,9 +51,11 @@ const PartialConfigHelpersByKey: { [P in Params as P['configKey']]: Partial<Conf
 }
 
 export const ConfigHelpersByKey = mapValues(PartialConfigHelpersByKey, helpers => ({ ...DefaultConfigHelpers, ...helpers }))
+export const DotfileConfigurableKeys = Object.keys(pickBy(ConfigHelpersByKey, helpers => helpers.isDotfileConfigurable))
 
 export type ConfigHelpers<ParamsType = Params> = {
   getFromArgv: (params: ParamsType) => unknown
+  isDotfileConfigurable: boolean
   getFromDotfile: (params: ParamsType, dotfile: Config | null) => unknown
   prompt: (params: ParamsType) => Promise<unknown>
 }

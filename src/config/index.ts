@@ -1,5 +1,5 @@
 import { getDotfileConfig, set, unset } from './dotfile'
-import { ConfigHelpers, ConfigHelpersByKey, Params } from './helpers'
+import { ConfigHelpers, ConfigHelpersByKey, Params, DotfileConfigurableKeys } from './helpers'
 import { ConfigKey } from './config-key'
 
 async function get(params: Params): Promise<unknown> {
@@ -10,7 +10,7 @@ async function get(params: Params): Promise<unknown> {
   if (argvValue)
     return argvValue
 
-  const dotfileValue = configHelpers.getFromDotfile(params, getDotfileConfig())
+  const dotfileValue = configHelpers.isDotfileConfigurable && configHelpers.getFromDotfile(params, getDotfileConfig())
   if (dotfileValue)
     return dotfileValue
 
@@ -26,7 +26,8 @@ export default {
     getConfig: getDotfileConfig,
     set,
     unset
-  }
+  },
+  DotfileConfigurableKeys
 }
 
 export type Config = Partial<Record<ConfigKey, string>>
