@@ -4,15 +4,15 @@ import { ConfigKey } from './config-key'
 
 async function get(params: Params): Promise<unknown> {
   const { argv, configKey } = params
-  const dotfile = getDotfileConfig()
   const configHelpers = ConfigHelpersByKey[configKey] as ConfigHelpers
 
-  const argvValue = configHelpers.parseArgv(params)
+  const argvValue = configHelpers.getFromArgv(params)
   if (argvValue)
     return argvValue
 
-  if (dotfile?.[configKey])
-    return dotfile[configKey]
+  const dotfileValue = configHelpers.getFromDotfile(params, getDotfileConfig())
+  if (dotfileValue)
+    return dotfileValue
 
   if (argv.interactive)
     return configHelpers.prompt(params)
