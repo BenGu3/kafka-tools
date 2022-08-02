@@ -4,8 +4,6 @@
     "esModuleInterop": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
-    "noUnusedParameters": true,
-    "noUnusedLocals": true,
     "resolveJsonModule": true,
     "module": "commonjs",
     "target": "es2021",
