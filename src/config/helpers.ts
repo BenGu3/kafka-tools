@@ -4,6 +4,7 @@ import { mapValues, pickBy } from 'lodash'
 
 import { ConfigKey } from './config-key'
 import { Config } from './index'
+import { ResetOffsetOption } from '../commands/consumer-commands/reset-offsets'
 
 const DefaultConfigHelpers: ConfigHelpers = {
   getFromArgv: ({ argv, configKey }) => argv[configKey],
@@ -47,6 +48,35 @@ const PartialConfigHelpersByKey: { [P in Params as P['configKey']]: Partial<Conf
 
       return topic
     }
+  },
+  [ConfigKey.ResetOffsetsOption]: {
+    getFromArgv: params => {
+      if (params.argv.earliest) return ResetOffsetOption.Earliest
+      if (params.argv.latest) return ResetOffsetOption.Latest
+      if (params.argv.timestamp) return params.argv.timestamp
+
+      return undefined
+    },
+    isDotfileConfigurable: false,
+    prompt: async () => {
+      const { resetOffsetsOption } = await inquirer.prompt<{ resetOffsetsOption: ResetOffsetOption }>({
+        name: 'resetOffsetsOption',
+        message: 'Reset to earliest, latest, or a specific time?',
+        type: 'list',
+        choices: Object.values(ResetOffsetOption)
+      })
+
+      if (resetOffsetsOption !== ResetOffsetOption.Timestamp)
+        return resetOffsetsOption
+
+      const { resetTimestamp } = await inquirer.prompt<{ resetTimestamp: Date }>({
+        name: 'resetTimestamp',
+        message: 'Reset offsets to when?',
+        type: 'date' as any
+      })
+
+      return resetTimestamp
+    }
   }
 }
 
@@ -64,6 +94,7 @@ export type Params =
   | GetKafkaHostParams
   | GetConsumerIdParams
   | GetTopicParams
+  | ResetOffsetsOptionParams
 
 type BaseParams = {
   configKey: ConfigKey
@@ -82,4 +113,8 @@ type GetConsumerIdParams = BaseParams & {
 type GetTopicParams = BaseParams & {
   configKey: ConfigKey.Topic
   topics: string[]
+}
+
+type ResetOffsetsOptionParams = BaseParams & {
+  configKey: ConfigKey.ResetOffsetsOption
 }
