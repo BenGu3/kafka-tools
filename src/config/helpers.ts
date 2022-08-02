@@ -1,9 +1,15 @@
 import inquirer from 'inquirer'
 import fuzzy from 'fuzzy'
+import { mapValues } from 'lodash'
 
 import { ConfigKey } from './config-key'
 
-export const ConfigHelpersByKey: { [P in Params as P['configKey']]: ConfigHelpers<P> } = {
+const DefaultConfigHelpers: ConfigHelpers = {
+  parseArgv: ({ argv, configKey }) => argv[configKey],
+  prompt: async () => { throw new Error('no prompt :(') }
+}
+
+const PartialConfigHelpersByKey: { [P in Params as P['configKey']]: Partial<ConfigHelpers<P>> } = {
   [ConfigKey.KafkaHost]: {
     prompt: async () => {
       const { kafkaHost } = await inquirer.prompt<{ kafkaHost: string }>({
@@ -41,8 +47,11 @@ export const ConfigHelpersByKey: { [P in Params as P['configKey']]: ConfigHelper
   }
 }
 
+export const ConfigHelpersByKey = mapValues(PartialConfigHelpersByKey, helpers => ({ ...DefaultConfigHelpers, ...helpers }))
+
 export type ConfigHelpers<ParamsType = Params> = {
-  prompt: (params: ParamsType) => Promise<string>
+  parseArgv: (params: ParamsType) => unknown
+  prompt: (params: ParamsType) => Promise<unknown>
 }
 
 export type Params =

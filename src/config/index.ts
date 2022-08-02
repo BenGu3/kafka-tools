@@ -2,19 +2,19 @@ import { getDotfileConfig, set, unset } from './dotfile'
 import { ConfigHelpers, ConfigHelpersByKey, Params } from './helpers'
 import { ConfigKey } from './config-key'
 
-async function get(params: Params): Promise<any> {
+async function get(params: Params): Promise<unknown> {
   const { argv, configKey } = params
   const dotfile = getDotfileConfig()
+  const configHelpers = ConfigHelpersByKey[configKey] as ConfigHelpers
 
-  if (argv[configKey])
-    return argv[configKey]
+  const argvValue = configHelpers.parseArgv(params)
+  if (argvValue)
+    return argvValue
 
   if (dotfile?.[configKey])
     return dotfile[configKey]
 
-  const configHelpers = ConfigHelpersByKey[configKey] as ConfigHelpers
-
-  if (argv.interactive && configHelpers.prompt)
+  if (argv.interactive)
     return configHelpers.prompt(params)
 
   throw new Error(`Missing '${configKey}'. kafka-tools must be run in interactive mode or '${configKey}' must be set in command line arguments or config.`)
