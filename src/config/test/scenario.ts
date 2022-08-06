@@ -8,7 +8,7 @@ export const testScenario = (scenario: Scenario) => {
     scenario.stub?.()
     sandbox.stub(dotfile, 'getDotfileConfig').mockReturnValue(scenario.config)
 
-    const promise = subject.get(scenario.params)
+    const promise = subject.get(scenario.params as Params)
 
     if ('expect' in scenario)
       scenario.expect(await promise)
@@ -20,7 +20,7 @@ export const testScenario = (scenario: Scenario) => {
 type BaseScenario = {
   name: string
   stub?: () => void
-  params: Params
+  params: Record<string, unknown>
   config: Config
 }
 

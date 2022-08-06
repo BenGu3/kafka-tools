@@ -23,6 +23,7 @@
     "no-inner-declarations": ["error", "both"],
     "no-irregular-whitespace": ["error", { "skipStrings": false }],
     "no-new": "off",
+    "no-redeclare": "off",
     "no-unused-vars": "off",
     "no-use-before-define": "off",
     "no-var": "error",
@@ -72,6 +73,7 @@
     "@typescript-eslint/no-use-before-define": "off",
     "@typescript-eslint/prefer-namespace-keyword": "error",
     "@typescript-eslint/prefer-for-of": "error",
-    "@typescript-eslint/type-annotation-spacing": "error"
+    "@typescript-eslint/type-annotation-spacing": "error",
+    "@typescript-eslint/no-redeclare": "error"
   }
 }

@@ -1,9 +1,10 @@
 import inquirer from 'inquirer'
 import fuzzy from 'fuzzy'
 import { mapValues, pickBy } from 'lodash'
+import { Arguments } from 'yargs'
 
-import { ConfigKey } from './config-key'
 import { Config } from './index'
+import { ConfigKey } from './config-key'
 import { ResetOffsetOption } from '../commands/consumer-commands/reset-offsets'
 
 const DefaultConfigHelpers: ConfigHelpers = {
@@ -53,7 +54,7 @@ const PartialConfigHelpersByKey: { [P in Params as P['configKey']]: Partial<Conf
     getFromArgv: params => {
       if (params.argv.earliest) return ResetOffsetOption.Earliest
       if (params.argv.latest) return ResetOffsetOption.Latest
-      if (params.argv.timestamp) return params.argv.timestamp
+      if (params.argv.timestamp) return new Date(params.argv.timestamp as string | number | Date)
 
       return undefined
     },
@@ -94,27 +95,27 @@ export type Params =
   | GetKafkaHostParams
   | GetConsumerIdParams
   | GetTopicParams
-  | ResetOffsetsOptionParams
+  | GetResetOffsetsOptionParams
 
 type BaseParams = {
   configKey: ConfigKey
-  argv: { interactive: boolean } & Record<string, any>
+  argv: Arguments
 }
 
-type GetKafkaHostParams = BaseParams & {
+export type GetKafkaHostParams = BaseParams & {
   configKey: ConfigKey.KafkaHost
 }
 
-type GetConsumerIdParams = BaseParams & {
+export type GetConsumerIdParams = BaseParams & {
   configKey: ConfigKey.ConsumerGroupId
   consumerGroupIds: string[]
 }
 
-type GetTopicParams = BaseParams & {
+export type GetTopicParams = BaseParams & {
   configKey: ConfigKey.Topic
   topics: string[]
 }
 
-type ResetOffsetsOptionParams = BaseParams & {
+export type GetResetOffsetsOptionParams = BaseParams & {
   configKey: ConfigKey.ResetOffsetsOption
 }
