@@ -1,4 +1,4 @@
-import { CommandBuilder } from 'yargs'
+import { Arguments, CommandBuilder } from 'yargs'
 import keyBy from 'lodash/keyBy'
 import { table } from 'table'
 
@@ -9,9 +9,9 @@ export const command: string = 'fetch-offsets'
 export const desc: string = 'Fetch offsets'
 export const builder: CommandBuilder = yargs => yargs
 
-export const handler = async (): Promise<void> => {
-  const { groupId, topic } = await getConsumerOptions()
-  const kafkaAdmin = await kafka.connect()
+export const handler = async (argv: Arguments): Promise<void> => {
+  const { groupId, topic } = await getConsumerOptions(argv)
+  const kafkaAdmin = await kafka.connect(argv)
 
   const consumerOffsets = await kafkaAdmin.fetchOffsets({ groupId, topics: [topic] })
   const topicConsumerOffsets = consumerOffsets.find(offsets => offsets.topic === topic)?.partitions

@@ -8,7 +8,7 @@ import { ResetOffsetOption } from '../../commands/consumer-commands/reset-offset
 
 describe('#config/resetOffsetsOption', () => {
   const resetOffsetsOption = ResetOffsetOption.Earliest
-  const resetTimestamp = new Date()
+  const resetTimestamp = new Date().getTime()
   const scenarios: Scenario[] = [
     {
       name: 'it uses argv.earliest when given',
@@ -40,7 +40,7 @@ describe('#config/resetOffsetsOption', () => {
       },
       config: { resetOffsetsOption: 'whatever' },
       expect: actual => {
-        expect(actual).toEqual(resetTimestamp)
+        expect(actual).toEqual(new Date(resetTimestamp))
       }
     },
     {
@@ -79,7 +79,7 @@ describe('#config/resetOffsetsOption', () => {
       stub: () => {
         when(sandbox.stub(inquirer, 'prompt'))
           .calledWith(expect.objectContaining({ name: 'resetOffsetsOption' })).mockResolvedValue({ resetOffsetsOption: ResetOffsetOption.Timestamp })
-          .calledWith(expect.objectContaining({ name: 'resetTimestamp' })).mockResolvedValue({ resetTimestamp })
+          .calledWith(expect.objectContaining({ name: 'resetTimestamp' })).mockResolvedValue({ resetTimestamp: new Date(resetTimestamp) })
       },
       params: {
         configKey: ConfigKey.ResetOffsetsOption,
@@ -87,7 +87,7 @@ describe('#config/resetOffsetsOption', () => {
       },
       config: {},
       expect: actual => {
-        expect(actual).toEqual(resetTimestamp)
+        expect(actual).toEqual(new Date(resetTimestamp))
         expect(inquirer.prompt).toHaveBeenCalledWith(expect.objectContaining({ name: 'resetOffsetsOption' }))
         expect(inquirer.prompt).toHaveBeenCalledWith(expect.objectContaining({ name: 'resetTimestamp' }))
       }

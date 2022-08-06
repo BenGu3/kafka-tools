@@ -1,11 +1,13 @@
 import * as table from 'table'
+import { Arguments } from 'yargs'
 
 import { handler } from '../fetch-offsets'
 import sandbox from '../../../../test/sandbox'
-import * as kafka from '../../../kafka'
+import kafka from '../../../kafka'
 import * as consumerCommand from '../../consumer'
 
 describe('consumer-commands/fetch-offsets', () => {
+  const argv = {} as Arguments
   const groupId = 'consumer-group-one'
   const topic = 'org.team.v1.topic'
   const consumerOffsets = [{
@@ -29,7 +31,7 @@ describe('consumer-commands/fetch-offsets', () => {
     sandbox.stub(consumerCommand, 'getConsumerOptions').mockResolvedValue({ groupId, topic })
     fetchOffsetsStub = sandbox.stub().mockResolvedValue(consumerOffsets)
     fetchTopicOffsetsStub = sandbox.stub().mockResolvedValue(topicOffsets)
-    sandbox.stub(kafka.default, 'connect').mockResolvedValue({
+    sandbox.stub(kafka, 'connect').mockResolvedValue({
       fetchOffsets: fetchOffsetsStub,
       fetchTopicOffsets: fetchTopicOffsetsStub
     })
@@ -37,14 +39,26 @@ describe('consumer-commands/fetch-offsets', () => {
     sandbox.stub(console, 'log')
   })
 
+  it('gets consumer options', async () => {
+    await handler(argv)
+
+    expect(consumerCommand.getConsumerOptions).toHaveBeenCalledWith(argv)
+  })
+
+  it('connects to kafka', async () => {
+    await handler(argv)
+
+    expect(kafka.connect).toHaveBeenCalledWith(argv)
+  })
+
   it('fetches consumer offsets', async () => {
-    await handler()
+    await handler(argv)
 
     expect(fetchOffsetsStub).toHaveBeenCalledWith({ groupId, topics: [topic] })
   })
 
   it('fetches topic offsets', async () => {
-    await handler()
+    await handler(argv)
 
     expect(fetchTopicOffsetsStub).toHaveBeenCalledWith(topic)
   })
@@ -56,7 +70,7 @@ describe('consumer-commands/fetch-offsets', () => {
       [1, 15, 150, 135, 10],
       [2, 10, 100, 90, 10]
     ]
-    await handler()
+    await handler(argv)
 
     expect(table.table).toHaveBeenCalledWith(tableData)
     expect(console.log).toHaveBeenCalled()

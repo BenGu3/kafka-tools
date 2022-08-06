@@ -1,15 +1,15 @@
-import inquirer from 'inquirer'
 import * as kafkajs from 'kafkajs'
-import { when } from 'jest-when'
+import { Arguments } from 'yargs'
 
 import subject, { resetKafkaAdmin } from '../kafka'
 import sandbox from '../../test/sandbox'
-import config from '../config'
+import config, { ConfigKey } from '../config'
 
 jest.mock('kafkajs')
 
 describe('kafka', () => {
   const kafkaHost = 'kafka:9000'
+  const argv = { } as Arguments
 
   let disconnectStub: jest.Mock
   let kafkaAdminStub: Record<string, jest.Mock>
@@ -17,7 +17,7 @@ describe('kafka', () => {
 
   beforeEach(() => {
     resetKafkaAdmin()
-    sandbox.stub(config.dotfile, 'getConfig').mockReturnValue({ kafkaHost })
+    sandbox.stub(config, 'get').mockReturnValue(kafkaHost)
     disconnectStub = sandbox.stub()
     kafkaAdminStub = { disconnect: disconnectStub }
     kafkaAdminConstructorStub = sandbox.stub().mockReturnValue(kafkaAdminStub)
@@ -25,26 +25,15 @@ describe('kafka', () => {
   })
 
   describe('#connect', () => {
-    it('uses config.kafkaHost when exists', async () => {
-      await subject.connect()
+    it('gets kafkaHost from config', async () => {
+      await subject.connect(argv)
 
-      expect(config.dotfile.getConfig).toHaveBeenCalled()
+      expect(config.get).toHaveBeenCalledWith({ configKey: ConfigKey.KafkaHost, argv })
       expect(kafkajs.Kafka).toHaveBeenCalledWith(expect.objectContaining({ brokers: [kafkaHost] }))
     })
 
-    it('prompts to input Kafka host when config.kafkaHost is null', async () => {
-      sandbox.stub(config.dotfile, 'getConfig').mockReturnValue({})
-      when(sandbox.stub(inquirer, 'prompt'))
-        .calledWith(expect.objectContaining({ name: 'kafkaHost' })).mockResolvedValue({ kafkaHost })
-
-      await subject.connect()
-
-      expect(config.dotfile.getConfig).toHaveBeenCalled()
-      expect(inquirer.prompt).toHaveBeenCalledWith(expect.objectContaining({ name: 'kafkaHost' }))
-    })
-
     it('returns Kafka client/admin with kafka host', async () => {
-      const actual = await subject.connect()
+      const actual = await subject.connect(argv)
 
       expect(kafkajs.Kafka).toHaveBeenCalledWith(expect.objectContaining({ brokers: [kafkaHost] }))
       expect(kafkaAdminConstructorStub).toHaveBeenCalled()
@@ -52,8 +41,8 @@ describe('kafka', () => {
     })
 
     it('does not create admin twice', async () => {
-      await subject.connect()
-      const actual = await subject.connect()
+      await subject.connect(argv)
+      const actual = await subject.connect(argv)
 
       expect(kafkajs.Kafka).toHaveBeenCalledTimes(1)
       expect(kafkaAdminConstructorStub).toHaveBeenCalledTimes(1)
@@ -63,7 +52,7 @@ describe('kafka', () => {
 
   describe('#disconnect', () => {
     it('disconnects when kafkaAdmin is not null', async () => {
-      await subject.connect()
+      await subject.connect(argv)
       await subject.disconnect()
 
       expect(disconnectStub).toHaveBeenCalled()

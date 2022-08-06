@@ -1,39 +1,26 @@
-import type { CommandBuilder } from 'yargs'
-import inquirer from 'inquirer'
-import fuzzy from 'fuzzy'
+import type { Arguments, CommandBuilder } from 'yargs'
 
 import kafka from '../kafka'
+import config, { ConfigKey } from '../config'
 
 export const command: string = 'consumer'
 export const desc: string = 'Start consumer tools'
 export const builder: CommandBuilder = yargs => yargs.commandDir('consumer-commands', { extensions: ['js', 'ts'] })
 export const handler = async (): Promise<void> => {}
 
-export const getConsumerOptions = async (): Promise<Record<string, string>> => {
-  const kafkaAdmin = await kafka.connect()
+export const getConsumerOptions = async (argv: Arguments): Promise<Record<string, string>> => {
+  const kafkaAdmin = await kafka.connect(argv)
   const { groups } = await kafkaAdmin.listGroups()
-  const groupIds = groups.map(group => group.groupId)
+  const consumerGroupIds = groups.map(group => group.groupId)
 
-  const { groupId } = await inquirer.prompt<{ groupId: string }>({
-    name: 'groupId',
-    message: 'Which consumer?',
-    type: 'autocomplete' as any,
-    source: ((_answersSoFar: any, input: string) => fuzzy.filter(input ?? '', groupIds).map(result => result.original)) as any
-  })
+  const groupId = await config.get({ configKey: ConfigKey.ConsumerGroupId, consumerGroupIds, argv })
 
   const offsetsByTopic = await kafkaAdmin.fetchOffsets({ groupId })
   const topics = offsetsByTopic.map(topicOffsets => topicOffsets.topic)
 
   let selectedTopic = topics[0]
   if (topics.length > 1) {
-    const { topic } = await inquirer.prompt<{ topic: string }>({
-      name: 'topic',
-      message: 'Which topic?',
-      type: 'list',
-      choices: topics
-    })
-
-    selectedTopic = topic
+    selectedTopic = await config.get({ configKey: ConfigKey.Topic, topics, argv })
   }
 
   return { groupId, topic: selectedTopic }

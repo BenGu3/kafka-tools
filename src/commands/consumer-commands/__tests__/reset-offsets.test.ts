@@ -1,15 +1,16 @@
-import inquirer from 'inquirer'
-import { when } from 'jest-when'
+import { Arguments } from 'yargs'
 
 import { handler, ResetOffsetOption } from '../reset-offsets'
 import * as consumerCommand from '../../consumer'
 import sandbox from '../../../../test/sandbox'
-import * as kafka from '../../../kafka'
+import kafka from '../../../kafka'
+import config, { ConfigKey } from '../../../config'
 
 describe('consumer-commands/reset-offsets', () => {
+  const argv = {} as Arguments
   const groupId = 'consumer-group-one'
   const topic = 'org.team.v1.topic'
-  const resetOffsetOption = true
+  const resetOffsetOption = ResetOffsetOption.Earliest
   const partitionsAtTimestamp = [
     { partition: 0, offset: '5' },
     { partition: 1, offset: '10' }
@@ -21,49 +22,58 @@ describe('consumer-commands/reset-offsets', () => {
 
   beforeEach(() => {
     sandbox.stub(consumerCommand, 'getConsumerOptions').mockResolvedValue({ groupId, topic })
-    sandbox.stub(inquirer, 'prompt').mockResolvedValue({ resetOffsetOption })
+    sandbox.stub(config, 'get').mockResolvedValue(resetOffsetOption)
     resetOffsetsStub = sandbox.stub()
     fetchTopicOffsetsByTimestampStub = sandbox.stub().mockResolvedValue(partitionsAtTimestamp)
     setOffsetsStub = sandbox.stub()
-    sandbox.stub(kafka.default, 'connect').mockResolvedValue({
+    sandbox.stub(kafka, 'connect').mockResolvedValue({
       resetOffsets: resetOffsetsStub,
       fetchTopicOffsetsByTimestamp: fetchTopicOffsetsByTimestampStub,
       setOffsets: setOffsetsStub
     })
   })
 
-  it('prompts for earliest or latest offset', async () => {
-    await handler()
+  it('gets consumer options', async () => {
+    await handler(argv)
 
-    expect(inquirer.prompt).toHaveBeenCalledWith(expect.objectContaining({ name: 'resetOffsetOption' }))
+    expect(consumerCommand.getConsumerOptions).toHaveBeenCalledWith(argv)
+  })
+
+  it('connects to kafka', async () => {
+    await handler(argv)
+
+    expect(kafka.connect).toHaveBeenCalledWith(argv)
+  })
+
+  it('gets reset offsets option', async () => {
+    await handler(argv)
+
+    expect(config.get).toHaveBeenCalledWith(expect.objectContaining({ configKey: ConfigKey.ResetOffsetsOption, argv }))
   })
 
   it('resets consumer offsets to latest when latest is selected', async () => {
-    sandbox.stub(inquirer, 'prompt').mockResolvedValue({ resetOffsetOption: ResetOffsetOption.Latest })
+    sandbox.stub(config, 'get').mockResolvedValue(ResetOffsetOption.Latest)
 
-    await handler()
+    await handler(argv)
 
     expect(resetOffsetsStub).toHaveBeenCalledWith({ groupId, topic, earliest: false })
   })
 
   it('resets consumer offsets to earliest when earliest is selected', async () => {
-    sandbox.stub(inquirer, 'prompt').mockResolvedValue({ resetOffsetOption: ResetOffsetOption.Earliest })
+    sandbox.stub(config, 'get').mockResolvedValue(ResetOffsetOption.Earliest)
 
-    await handler()
+    await handler(argv)
 
     expect(resetOffsetsStub).toHaveBeenCalledWith({ groupId, topic, earliest: true })
   })
 
   it('resets consumer offset to timestamp when timestamp is selected', async () => {
-    const resetTimestamp = new Date().getTime()
-    when(sandbox.stub(inquirer, 'prompt'))
-      .calledWith(expect.objectContaining({ name: 'resetOffsetOption' })).mockResolvedValue({ resetOffsetOption: ResetOffsetOption.Timestamp })
-      .calledWith(expect.objectContaining({ name: 'resetTimestamp' })).mockResolvedValue({ resetTimestamp: new Date(resetTimestamp) })
+    const resetTimestamp = new Date()
+    sandbox.stub(config, 'get').mockResolvedValue(resetTimestamp)
 
-    await handler()
+    await handler(argv)
 
-    expect(inquirer.prompt).toHaveBeenCalledWith(expect.objectContaining({ name: 'resetTimestamp' }))
-    expect(fetchTopicOffsetsByTimestampStub).toHaveBeenCalledWith(topic, resetTimestamp)
+    expect(fetchTopicOffsetsByTimestampStub).toHaveBeenCalledWith(topic, resetTimestamp.getTime())
     expect(setOffsetsStub).toHaveBeenCalledWith({ groupId, topic, partitions: partitionsAtTimestamp })
   })
 })
