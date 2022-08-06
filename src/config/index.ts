@@ -30,4 +30,6 @@ export default {
   DotfileConfigurableKeys
 }
 
+export { ConfigKey }
+
 export type Config = Partial<Record<ConfigKey, string>>

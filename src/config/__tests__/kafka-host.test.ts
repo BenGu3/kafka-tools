@@ -3,7 +3,7 @@ import { when } from 'jest-when'
 
 import sandbox from '../../../test/sandbox'
 import { Scenario, testScenario } from '../test/scenario'
-import { ConfigKey } from '../config-key'
+import { ConfigKey } from '../index'
 
 describe('config/kafkaHost', () => {
   const kafkaHost = 'some-random-host'

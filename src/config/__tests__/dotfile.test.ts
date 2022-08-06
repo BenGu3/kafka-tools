@@ -2,7 +2,7 @@ import fs from 'fs'
 
 import * as subject from '../dotfile'
 import sandbox from '../../../test/sandbox'
-import { ConfigKey } from '../config-key'
+import { ConfigKey } from '../index'
 
 describe('config/dotfile', () => {
   const testConfig = {

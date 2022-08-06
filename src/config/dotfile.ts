@@ -2,8 +2,7 @@ import path from 'path'
 import os from 'os'
 import fs from 'fs'
 
-import { Config } from './index'
-import { ConfigKey } from './config-key'
+import { Config, ConfigKey } from './index'
 
 export const dotfilePath = path.join(os.homedir(), '.kafka-tools')
 

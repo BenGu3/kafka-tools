@@ -1,7 +1,6 @@
 import type { Arguments, CommandBuilder } from 'yargs'
 
-import config from '../config'
-import { ConfigKey } from '../config/config-key'
+import config, { ConfigKey } from '../config'
 
 type SetPositionals = {
   key: string
