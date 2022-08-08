@@ -18,26 +18,6 @@ brew install kafka-tools
 npm install -g @bengu3/kafka-tools
 ```
 
-## 🚀 Usage 🚀
-
-### `config`
-List config
-```bash
-kafka-tools config
-```
-
-Set `kafkaHost`
-```bash
-kafka-tools config set kafkaHost [kafkaHost]
-```
-
-### `consumer`
-Fetch consumer offsets
-```bash
-kafka-tools consumer fetch-offsets
-```
-
-Reset consumer offsets
-```bash
-kafka-tools consumer reset-offsets
-```
+## 🚀 Command Docs 🚀
+- [config](docs/config.md)
+- [consumer](docs/consumer.md)
