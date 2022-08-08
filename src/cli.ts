@@ -12,6 +12,7 @@ inquirer.registerPrompt('date', require('inquirer-date-prompt'))
 const parser = yargs(hideBin(process.argv))
   .commandDir('commands', { extensions: ['js', 'ts'] })
   .demandCommand()
+  .strictCommands()
   .alias({ h: 'help', v: 'version' })
   .argv
 
