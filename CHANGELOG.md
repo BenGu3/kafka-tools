@@ -1,3 +1,5 @@
+## [2.1.1](https://github.com/BenGu3/kafka-tools/compare/v2.1.0...v2.1.1) (2023-02-15)
+
 # [2.1.0](https://github.com/BenGu3/kafka-tools/compare/v2.0.0...v2.1.0) (2023-02-15)
 
 
