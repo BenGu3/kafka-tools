@@ -42,13 +42,13 @@ jobs:
         run: yarn --frozen-lockfile
       - name: Build
         run: yarn run build
-      - name: Create release files
-        run: yarn run release
       - name: Publish to npm
         run: HUSKY=0 yarn run publish:npm
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Create release files
+        run: yarn run release
       - name: Add release tar to GitHub Release
         uses: softprops/action-gh-release@v1
         with:
