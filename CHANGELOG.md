@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/BenGu3/kafka-tools/compare/v2.0.0...v2.1.0) (2023-02-15)
+
+
+### Features
+
+* add kafkaAuth config and IAM kafkaAuth ([a878452](https://github.com/BenGu3/kafka-tools/commit/a878452d95170fc851be99424f210a5ee8192106))
+
 # [2.0.0](https://github.com/BenGu3/kafka-tools/compare/v1.0.0...v2.0.0) (2022-08-09)
 
 
