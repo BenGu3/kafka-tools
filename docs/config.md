@@ -9,6 +9,7 @@
 
 ---
 ### Configurable configKeys
+- `kafkAuth`
 - `kafkaHost`
 - `consumerGroupId`
 - `topic`

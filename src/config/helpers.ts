@@ -6,6 +6,7 @@ import { Arguments } from 'yargs'
 import { Config } from './index'
 import { ConfigKey } from './config-key'
 import { ResetOffsetOption } from '../commands/consumer-commands/reset-offsets'
+import { KafkaAuthType } from '../kafka'
 
 const DefaultConfigHelpers: ConfigHelpers = {
   getFromArgv: ({ argv, configKey }) => argv[configKey],
@@ -15,6 +16,18 @@ const DefaultConfigHelpers: ConfigHelpers = {
 }
 
 const PartialConfigHelpersByKey: { [P in Params as P['configKey']]: Partial<ConfigHelpers<P>> } = {
+  [ConfigKey.KafkaAuth]: {
+    prompt: async () => {
+      const { kafkaAuth } = await inquirer.prompt<{ kafkaAuth: string }>({
+        name: 'kafkaAuth',
+        message: 'What type of auth would you like to use to connect to Kafka?',
+        type: 'list',
+        choices: Object.values(KafkaAuthType)
+      })
+
+      return kafkaAuth
+    }
+  },
   [ConfigKey.KafkaHost]: {
     prompt: async () => {
       const { kafkaHost } = await inquirer.prompt<{ kafkaHost: string }>({
@@ -92,6 +105,7 @@ export type ConfigHelpers<ParamsType = Params> = {
 }
 
 export type Params =
+  | GetKafkaAuthParams
   | GetKafkaHostParams
   | GetConsumerIdParams
   | GetTopicParams
@@ -100,6 +114,10 @@ export type Params =
 type BaseParams = {
   configKey: ConfigKey
   argv: Arguments
+}
+
+export type GetKafkaAuthParams = BaseParams & {
+  configKey: ConfigKey.KafkaAuth
 }
 
 export type GetKafkaHostParams = BaseParams & {

@@ -5,6 +5,9 @@
 - `--interactive`
   - Type: Boolean
   - Prompt for missing configuration
+- `--kafkaAuth`
+  - Type: String
+  - Type of auth to use for Kafka connection ('none' or 'IAM')
 - `--kafkaHost`
   - Type: String
   - Host of Kafka instance

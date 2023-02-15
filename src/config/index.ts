@@ -1,11 +1,12 @@
 import { getDotfileConfig, set, unset } from './dotfile'
 import {
   ConfigHelpersByKey, DotfileConfigurableKeys, ConfigHelpers,
-  Params, GetKafkaHostParams, GetConsumerIdParams, GetTopicParams, GetResetOffsetsOptionParams
+  Params, GetKafkaHostParams, GetConsumerIdParams, GetTopicParams, GetResetOffsetsOptionParams, GetKafkaAuthParams
 } from './helpers'
 import { ConfigKey } from './config-key'
 import { ResetOffsetOption } from '../commands/consumer-commands/reset-offsets'
 
+async function get(params: GetKafkaAuthParams): Promise<string>
 async function get(params: GetKafkaHostParams): Promise<string>
 async function get(params: GetConsumerIdParams): Promise<string>
 async function get(params: GetTopicParams): Promise<string>

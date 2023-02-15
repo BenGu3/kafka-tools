@@ -1,13 +1,16 @@
 import * as kafkajs from 'kafkajs'
 import { Arguments } from 'yargs'
+import { Type as AwsIamAuthType } from '@jm18457/kafkajs-msk-iam-authentication-mechanism'
+import { when } from 'jest-when'
 
-import subject, { resetKafkaAdmin } from '../kafka'
+import subject, { KafkaAuthType, resetKafkaAdmin } from '../kafka'
 import sandbox from '../../test/sandbox'
 import config, { ConfigKey } from '../config'
 
 jest.mock('kafkajs')
 
 describe('kafka', () => {
+  const kafkaAuth = KafkaAuthType.None
   const kafkaHost = 'kafka:9000'
   const argv = { } as Arguments
 
@@ -17,7 +20,9 @@ describe('kafka', () => {
 
   beforeEach(() => {
     resetKafkaAdmin()
-    sandbox.stub(config, 'get').mockReturnValue(kafkaHost)
+    when(sandbox.stub(config, 'get'))
+      .calledWith(expect.objectContaining({ configKey: ConfigKey.KafkaAuth })).mockResolvedValue(kafkaAuth)
+      .calledWith(expect.objectContaining({ configKey: ConfigKey.KafkaHost })).mockResolvedValue(kafkaHost)
     disconnectStub = sandbox.stub()
     kafkaAdminStub = { disconnect: disconnectStub }
     kafkaAdminConstructorStub = sandbox.stub().mockReturnValue(kafkaAdminStub)
@@ -30,6 +35,25 @@ describe('kafka', () => {
 
       expect(config.get).toHaveBeenCalledWith({ configKey: ConfigKey.KafkaHost, argv })
       expect(kafkajs.Kafka).toHaveBeenCalledWith(expect.objectContaining({ brokers: [kafkaHost] }))
+    })
+
+    it('uses IAM auth when KafkaAuthType is IAM', async () => {
+      when(sandbox.stub(config, 'get'))
+        .calledWith(expect.objectContaining({ configKey: ConfigKey.KafkaAuth })).mockResolvedValue(KafkaAuthType.IAM)
+        .calledWith(expect.objectContaining({ configKey: ConfigKey.KafkaHost })).mockResolvedValue(kafkaHost)
+      const expectedKafkaParams = expect.objectContaining({
+        brokers: [kafkaHost],
+        ssl: true,
+        sasl: {
+          mechanism: AwsIamAuthType,
+          authenticationProvider: expect.any(Function)
+        }
+      })
+
+      await subject.connect(argv)
+
+      expect(config.get).toHaveBeenCalledWith({ configKey: ConfigKey.KafkaAuth, argv })
+      expect(kafkajs.Kafka).toHaveBeenCalledWith(expectedKafkaParams)
     })
 
     it('returns Kafka client/admin with kafka host', async () => {
