@@ -34,7 +34,6 @@
     "kafkajs": "2.2.3",
     "lodash": "4.17.21",
     "table": "6.7.5",
-    "winston": "3.3.3",
     "yargs": "17.3.0"
   },
   "devDependencies": {
